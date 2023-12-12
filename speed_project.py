@@ -10,7 +10,7 @@ def lobbi(screen):
     while True:
         screen.blit(background_image, (0, 0))
         pygame.display.update()
-        clock.tick(60)
+        clock.tick(80)
 
 
 if __name__ == "__main__":
