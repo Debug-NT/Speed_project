@@ -21,7 +21,6 @@ if __name__ == "__main__":
     lobbi(screen)
     pygame.display.flip()
 
-
     while pygame.event.wait().type != pygame.QUIT:
         pass
 
