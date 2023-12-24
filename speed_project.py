@@ -22,13 +22,13 @@ clock = pygame.time.Clock()
 
 # Загрузить изображение
 player_car = pygame.image.load('car1.png')
-player_car = pygame.transform.scale(player_car, (100, 150))
-bot_car1 = pygame.image.load('bot car1.jpg')
-bot_car1 = pygame.transform.scale(bot_car1, (100, 150))
+player_car = pygame.transform.scale(player_car, (250, 500))
+bot_car1 = pygame.image.load('bot car1.png')
+bot_car1 = pygame.transform.scale(bot_car1, (250, 500))
 bot_car2 = pygame.image.load('bot car2.png')
-bot_car2 = pygame.transform.scale(bot_car2, (100, 150))
+bot_car2 = pygame.transform.scale(bot_car2, (250, 500))
 bot_car3 = pygame.image.load('bot car3.png')
-bot_car3 = pygame.transform.scale(bot_car3, (100, 150))
+bot_car3 = pygame.transform.scale(bot_car3, (250, 500))
 map = pygame.image.load("race.jpg")
 background_image = pygame.image.load('background.png')
 
@@ -72,14 +72,14 @@ def car(x, y):
 
 def game_process():
     global pause
-    x = (width * 0.45)
-    y = (height * 0.8)
+    x = (width * 0.3)
+    y = (height * 0.5)
     x_change = 0
     obstacle_speed = 9
     obs = 0
     obs_startx = random.randrange(200, (width - 200))
-    obs_starty = -750
-    obs_height = 125
+    obs_starty = 150
+    obs_height = 300
     y2 = 7
 
     bumped = False
@@ -103,6 +103,9 @@ def game_process():
 
         x += x_change
         pause = True
+
+        gamedisplays.fill(gray)
+        countdown_background()
 
         obstacle(obs_startx, obs_starty, obs)
         obs_starty += obstacle_speed
