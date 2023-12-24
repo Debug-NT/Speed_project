@@ -92,16 +92,25 @@ def game_process():
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
-                    x_change = -5
+                    if x + x_change > 100:
+                        x_change = -5
+                    else:
+                        x_change = 0
                 if event.key == pygame.K_RIGHT:
-                    x_change = 5
+                    if x + x_change < 1820:
+                        x_change = 5
+                    else:
+                        x_change = 0
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT:
                     x_change = 0
                 if event.key == pygame.K_RIGHT:
                     x_change = 0
 
-        x += x_change
+        if x + x_change > 1350 or x + x_change < 320:
+            x += 0
+        else:
+            x += x_change
         pause = True
 
         gamedisplays.fill(gray)
@@ -112,9 +121,9 @@ def game_process():
         car(x, y)
         if obs_starty > height:
             obs_starty = 0 - obs_height
-            obs_startx = random.randrange(170,
-                                          (width - 170))
-            obs = random.randrange(0, 7)
+            obs_startx = random.randrange(320,
+                                          1350)
+            obs = random.randrange(0, 3)
 
         pygame.display.update()
         clock.tick(60)
@@ -177,7 +186,6 @@ def countdown():
                 sys.exit()
 
         gamedisplays.fill(gray)
-
         countdown_background()
 
         largetext = pygame.font.Font('freesansbold.ttf', 115)
@@ -227,7 +235,7 @@ def countdown_background():
     font = pygame.font.SysFont(None, 25)
     x = (width * 0.45)
     y = (height * 0.8)
-    gamedisplays.blit(player_car, (x, y))
+    # gamedisplays.blit(player_car, (x, y))
     gamedisplays.blit(map, (0, 0))
     text = font.render("DODGED: 0", True, black)
     score = font.render("SCORE: 0", True, red)
