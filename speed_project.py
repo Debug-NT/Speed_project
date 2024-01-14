@@ -35,6 +35,8 @@ bot_car3 = pygame.transform.scale(bot_car3, (250, 500))
 map = pygame.image.load("race.jpg")
 background_image = pygame.image.load('background.png')
 
+num_of_kills = 0
+
 car_width = 56
 pause = False
 
@@ -75,10 +77,11 @@ class Bot(pygame.sprite.Sprite):
             return True
 
 
-class gameplay():
+class gameplay:
 
     def __init__(self):
         super().__init__()
+        self.score_level = 1
         self.bot_mask1 = pygame.mask.from_surface(bot_car1)
         self.rect = bot_car1.get_rect()
         self.image = pygame.image.load('bot car1.png')
@@ -117,13 +120,14 @@ class gameplay():
 
     def game_process(self):
         global pause
+        global num_of_kills
         x = (width * 0.3)
         y = (height * 0.5)
         x_change = 0
-        obstacle_speed = 9
+        obstacle_speed = 6 + self.score_level
         obs = 0
         obs_startx = random.randrange(200, (width - 200))
-        obs_starty = 300
+        obs_starty = -300
         obs_height = 300
         y2 = 7
 
@@ -138,12 +142,12 @@ class gameplay():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_LEFT:
                         if x + x_change > 100:
-                            x_change = -20
+                            x_change = -6 - self.score_level
                         else:
                             x_change = 0
                     if event.key == pygame.K_RIGHT:
                         if x + x_change < 1820:
-                            x_change = 20
+                            x_change = 6 + self.score_level
                         else:
                             x_change = 0
                 if event.type == pygame.KEYUP:
@@ -151,16 +155,14 @@ class gameplay():
                         x_change = 0
                     if event.key == pygame.K_RIGHT:
                         x_change = 0
-
             if x + x_change > 1350 or x + x_change < 320:
                 x += 0
             else:
                 x += x_change
             maskplay.rect.x = x
             pause = True
-
             gamedisplays.fill(gray)
-            self.countdown_background()
+            self.countdown_background(num_of_kills, num_of_kills)
             MYEVENTTYPE = pygame.USEREVENT + 1
             pygame.time.set_timer(MYEVENTTYPE, 10)
             Bot(obs)
@@ -169,7 +171,6 @@ class gameplay():
                 if bot.check_crash():
                     self.crash()
                     bumped = True
-
             obs_starty += obstacle_speed
             self.car(x, y)
             if obs_starty > height:
@@ -178,8 +179,6 @@ class gameplay():
                                               1350)
                 obs = random.randrange(0, 3)
 
-            # if Bot.check_crash():
-            #     self.crash()
             pygame.display.update()
             clock.tick(60)
             pygame.time.set_timer(MYEVENTTYPE, 0)
@@ -189,10 +188,9 @@ class gameplay():
     def crash(self):
         self.message_display("YOU CRASHED")
 
-
-
     def obstacle(self, obs_startx, obs_starty, obs):
         global obs_pic
+        global num_of_kills
         if obs == 0:
             obs_pic = bot_car1
         elif obs == 1:
@@ -205,6 +203,9 @@ class gameplay():
         for bot in bots:
             bot.rect.x = obs_startx
             bot.rect.y = obs_starty
+        if obs_starty == 1079:
+            num_of_kills += 1
+            print(num_of_kills)
 
     def text_object(self, text, font):
         textsurface = font.render(text, True, black)
@@ -216,7 +217,7 @@ class gameplay():
 
         if x + w > mouse[0] > x and y + h > mouse[1] > y:
             pygame.draw.rect(gamedisplays, ac, (x, y, w, h))
-            if click[0] == 1 and action != None:
+            if click[0] == 1 and action is not None:
                 if action == "play":
                     self.countdown()
                 elif action == "quit":
@@ -288,14 +289,15 @@ class gameplay():
 
             self.game_process()
 
-    def countdown_background(self):
+    def countdown_background(self, dodge=0, score=0):
         font = pygame.font.SysFont(None, 25)
-        x = (width * 0.45)
-        y = (height * 0.8)
-        # gamedisplays.blit(player_car, (x, y))
         gamedisplays.blit(map, (0, 0))
-        text = font.render("DODGED: 0", True, black)
-        score = font.render("SCORE: 0", True, red)
+        if score % 10 == 0 and score // 10 != 0:
+            self.score_level += 1
+        level = font.render(f"LEVEL: {self.score_level}", True, green)
+        text = font.render(f"DODGED: {dodge}", True, black)
+        score = font.render(f"SCORE: {score * 10}", True, red)
+        gamedisplays.blit(level, (0, 70))
         gamedisplays.blit(text, (0, 50))
         gamedisplays.blit(score, (0, 30))
 
@@ -304,12 +306,15 @@ class gameplay():
         return textsurface, textsurface.get_rect()
 
     def message_display(self, text):
+        global num_of_kills
         largetext = pygame.font.Font("freesansbold.ttf", 80)
         textsurf, textrect = self.text_object(text, largetext)
         textrect.center = ((width / 2), (height / 2))
         gamedisplays.blit(textsurf, textrect)
         pygame.display.update()
         time.sleep(3)
+        num_of_kills = 0
+        self.lobbi()
         self.game_process()
 
 
