@@ -33,6 +33,8 @@ bot_car2 = pygame.transform.scale(bot_car2, (250, 500))
 bot_car3 = pygame.image.load('bot car3.png')
 bot_car3 = pygame.transform.scale(bot_car3, (350, 500))
 map = pygame.image.load("race.jpg")
+map2 = pygame.image.load("race.jpg")
+pair = [map, map2]
 background_image = pygame.image.load('background.png')
 
 num_of_kills = 0
@@ -81,6 +83,10 @@ class gameplay:
 
     def __init__(self):
         super().__init__()
+        self.y_down = -1080
+        self.y_up = 0
+        self.level_speed = 1.1
+        self.obstacle_speed = 10 * self.level_speed
         self.level_speed = 1.1
         self.score_level = 1
         self.bot_mask1 = pygame.mask.from_surface(bot_car1)
@@ -115,19 +121,19 @@ class gameplay:
 
             pygame.display.update()
             clock.tick(50)
-        self.level_speed = 1.1
+        # self.level_speed = 1.1
         self.score_level = 1
 
     def car(self, x, y):
         gamedisplays.blit(player_car, (x, y))
 
     def game_process(self):
-        global pause
+        global pause, map
         global num_of_kills
         x = (width * 0.3)
         y = (height * 0.5)
         x_change = 0
-        obstacle_speed = 6 * self.level_speed
+        # self.obstacle_speed = 6 * self.level_speed
         obs = 0
         obs_startx = random.randrange(200, (width - 200))
         obs_starty = -300
@@ -141,7 +147,7 @@ class gameplay:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     quit()
-
+                pygame.display.update()
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_LEFT:
                         if x + x_change > 100:
@@ -163,12 +169,12 @@ class gameplay:
             else:
                 x += x_change
             maskplay.rect.x = x
+            pygame.display.update()
             pause = True
             gamedisplays.fill(gray)
             self.countdown_background(num_of_kills, num_of_kills)
             if (num_of_kills % 10 == 0 and num_of_kills // 10 != 0 and round(self.level_speed % 1, 1) * 10
                     == num_of_kills // 10):
-                print(self.level_speed % 1 != num_of_kills // 10)
                 self.level_speed += 0.1
                 self.score_level += 1
             MYEVENTTYPE = pygame.USEREVENT + 1
@@ -179,7 +185,7 @@ class gameplay:
                 if bot.check_crash():
                     self.crash()
                     bumped = True
-            obs_starty += obstacle_speed
+            obs_starty += self.obstacle_speed
             self.car(x, y)
             if obs_starty > height:
                 obs_starty = 0 - obs_height
@@ -190,6 +196,7 @@ class gameplay:
             pygame.display.update()
             clock.tick(60)
             pygame.time.set_timer(MYEVENTTYPE, 0)
+            # map = pygame.transform.scale(map, (width, height + 30))
             for bot in bots:
                 bot.kill()
 
@@ -211,10 +218,10 @@ class gameplay:
         for bot in bots:
             bot.rect.x = obs_startx
             bot.rect.y = obs_starty
-        print(obs_starty)
-        if obs_starty >= 1079:
+        # print(obs_starty)
+        if obs_starty >= 1075:
             num_of_kills += 1
-            print(num_of_kills)
+            # print(num_of_kills)
 
     def text_object(self, text, font):
         textsurface = font.render(text, True, black)
@@ -300,15 +307,25 @@ class gameplay:
 
     def countdown_background(self, dodge=0, score=0):
         font = pygame.font.SysFont(None, 25)
-        gamedisplays.blit(map, (0, 0))
+        gamedisplays.blit(map, (0, self.y_down))
         # if score % 10 == 0 and score_for_level // 10 != 0:
         #     self.score_level += 1
         level = font.render(f"LEVEL: {self.score_level}", True, green)
         text = font.render(f"DODGED: {dodge}", True, black)
         score = font.render(f"SCORE: {score * 10}", True, red)
+        gamedisplays.blit(score, (0, 30))
         gamedisplays.blit(level, (0, 70))
         gamedisplays.blit(text, (0, 50))
-        gamedisplays.blit(score, (0, 30))
+        gamedisplays.blit(map, (0, self.y_up))
+        if -1080 <= self.y_down <= 0:
+            self.y_down += self.obstacle_speed - 3
+        else:
+            self.y_down = -1080
+        if self.y_up <= 1080:
+            self.y_up += self.obstacle_speed - 3
+        else:
+            self.y_up = 0
+        # print(self.y_down, self.y_up)
 
     def text_object(self, text, font):
         textsurface = font.render(text, True, black)
